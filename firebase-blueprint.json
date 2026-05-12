@@ -1,0 +1,194 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Employee profile information and professional identity.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "photoURL": { "type": "string" },
+        "title": { "type": "string", "description": "Professional title/role" },
+        "department": { "type": "string" },
+        "bio": { "type": "string" },
+        "aspirations": { "type": "string", "description": "Career goals and future roles." },
+        "skillsExpert": { 
+          "type": "array", 
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "level": { "type": "string", "enum": ["Beginner", "Intermediate", "Advanced", "Expert"] }
+            }
+          }
+        },
+        "skillsInterested": { 
+          "type": "array", 
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "targetLevel": { "type": "string", "enum": ["Intermediate", "Advanced", "Expert"] }
+            }
+          }
+        },
+        "isMentor": { "type": "boolean" },
+        "points": { "type": "number", "default": 0 },
+        "level": { "type": "number", "default": 1 },
+        "badges": { 
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "isAdmin": { "type": "boolean", "default": false },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "email"]
+    },
+    "Skill": {
+      "title": "Skill",
+      "description": "A specific technical or soft skill available in the enterprise catalog.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "MentorshipPost": {
+      "title": "Mentorship Post",
+      "description": "An public listing indicating a need for a mentor or an offer to mentor.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string", "enum": ["request", "offer"] },
+        "skill": { "type": "string" },
+        "description": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "closed"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "skill", "status"]
+    },
+    "Pairing": {
+      "title": "Mentorship Pairing",
+      "description": "A formal connection between a mentor and a mentee.",
+      "type": "object",
+      "properties": {
+        "mentorId": { "type": "string" },
+        "menteeId": { "type": "string" },
+        "skill": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled"] },
+        "progress": { "type": "number", "minimum": 0, "maximum": 100 },
+        "milestones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "completed": { "type": "boolean" },
+              "completedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "startDate": { "type": "string", "format": "date-time" },
+        "lastMeetingDate": { "type": "string", "format": "date-time" },
+        "notes": { "type": "string" }
+      },
+      "required": ["mentorId", "menteeId", "skill", "status"]
+    },
+    "Feedback": {
+      "title": "Session Feedback",
+      "description": "Mentee feedback for a specific mentor/session.",
+      "type": "object",
+      "properties": {
+        "pairingId": { "type": "string" },
+        "menteeId": { "type": "string" },
+        "mentorId": { "type": "string" },
+        "rating": { "type": "number", "minimum": 1, "maximum": 5 },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pairingId", "menteeId", "mentorId", "rating"]
+    },
+    "Endorsement": {
+      "title": "Skill Endorsement",
+      "description": "Validation of a colleague's skill.",
+      "type": "object",
+      "properties": {
+        "fromUserId": { "type": "string" },
+        "toUserId": { "type": "string" },
+        "skillName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fromUserId", "toUserId", "skillName"]
+    },
+    "LearningResource": {
+      "title": "Learning Resource",
+      "description": "External or internal educational content aggregated for skill development.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "provider": { "type": "string", "enum": ["LinkedIn Learning", "Coursera", "Pluralsight", "Internal"] },
+        "type": { "type": "string", "enum": ["Course", "Article", "Video", "Path"] },
+        "url": { "type": "string" },
+        "skills": { "type": "array", "items": { "type": "string" } },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "provider", "url"]
+    },
+    "InternalGig": {
+      "title": "Internal Gig",
+      "description": "Short-term projects or task opportunities within the organization.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "department": { "type": "string" },
+        "description": { "type": "string" },
+        "skillsRequired": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["open", "filled", "completed"] },
+        "postedBy": { "type": "string" }
+      },
+      "required": ["title", "department", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles restricted to owners or admins."
+    },
+    "/skills/{skillId}": {
+      "schema": "Skill",
+      "description": "Public catalog of skills."
+    },
+    "/resources/{resourceId}": {
+      "schema": "LearningResource",
+      "description": "Aggregated learning content."
+    },
+    "/gigs/{gigId}": {
+      "schema": "InternalGig",
+      "description": "Organizational project opportunities."
+    },
+    "/assessments/{assessmentId}": {
+      "schema": "SkillAssessment",
+      "description": "Verified skill verification records."
+    },
+    "/posts/{postId}": {
+      "schema": "MentorshipPost",
+      "description": "Discoverable mentorship requests and offers."
+    },
+    "/pairings/{pairingId}": {
+      "schema": "Pairing",
+      "description": "Private mentorship connections."
+    },
+    "/feedback/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "Mentorship feedback records."
+    },
+    "/endorsements/{endorsementId}": {
+      "schema": "Endorsement",
+      "description": "Public skill validations between colleagues."
+    }
+  }
+}
